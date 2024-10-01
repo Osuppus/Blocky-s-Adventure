@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     public bool isJumping = false; //declare and set a bool for if we're jumping or not to false (b/c we're not jumping when the game starts) 
     
     //player health
-    public int maxHealth = 20; //set and declare the maxHealth
+    public int maxHealth = 1; //set and declare the maxHealth
     public int currentHealth; //declare currentHealthm, set in Start(), going to fluctuate as the game plays
     public HealthBar healthBarScript; //reference the HealthBar script, set in inspector
 
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth; //set currentHealth equal to maxHealth
-        healthBarScript.SetMaxHealth(maxHealth); //set the SetMaxHealth(int) to the maxHealth value from this script
+        //healthBarScript.SetMaxHealth(maxHealth); //set the SetMaxHealth(int) to the maxHealth value from this script
     }
 
     // Update is called once per frame
@@ -116,7 +116,11 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage; //reduce current health by damage amount
-        healthBarScript.SetHealth(currentHealth); // set the SetHealth(int) to the currentHealth value from this script
+        if (currentHealth <= 0) 
+        {
+            Destroy(gameObject); 
+        }
+        //healthBarScript.SetHealth(currentHealth); // set the SetHealth(int) to the currentHealth value from this script
     }
 
 
