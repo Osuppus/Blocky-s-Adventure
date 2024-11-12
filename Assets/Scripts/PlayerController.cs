@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static PlayerController;
 
 public class PlayerController : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class PlayerController : MonoBehaviour
     public float playerSpeed = 0.05f; //declare and set playerSpeed
     public float jumpForce = 300; //declare and set jumpForce
     public bool isJumping = false; //declare and set a bool for if we're jumping or not to false (b/c we're not jumping when the game starts) 
-    
+
     //player health
     public int maxHealth = 1; //set and declare the maxHealth
     public int currentHealth; //declare currentHealthm, set in Start(), going to fluctuate as the game plays
@@ -34,8 +35,12 @@ public class PlayerController : MonoBehaviour
     //play sound effects
     public AudioSource lavaRockAudio; //declare and set lava rock audio file in the inspector
 
-    
-    
+    public int Animation = 0;
+
+    public PlayerStates State = PlayerStates.Idle;
+
+    public PlayerStates st = PlayerStates.Idle;
+
 
     // Start is called before the first frame update
     void Start()
@@ -49,6 +54,15 @@ public class PlayerController : MonoBehaviour
     {
         MovePlayer(); //call MovePlayer() function
         Jump(); //call Jump() function
+
+        if (State == PlayerStates.Stunned)
+        {
+            StunnedControls();
+        }
+        else
+        {
+            NormalControls();
+        }
     }
 
     //Move Player Left & Right via A & D keys
@@ -62,6 +76,7 @@ public class PlayerController : MonoBehaviour
             newPos.x -= playerSpeed; //affect x coordinate, move left
             facingLeft = true; //facingLeft is false, we're moving and should be facing left
             Flip(facingLeft); //call Flip(), feed it a bool
+            st = PlayerStates.Walking;
         }
         else if (Input.GetKey(KeyCode.D)) //if the D key is pressed
         {
@@ -69,6 +84,7 @@ public class PlayerController : MonoBehaviour
             newPos.x += playerSpeed; //affect x coordinate, move right
             facingLeft = false; //facingLeft is false, we're moving and should be facing right. 
             Flip(facingLeft); //call Flip(), feed it a bool
+            st = PlayerStates.Walking;
         }
         transform.position = newPos; //update player object with the new position
     }
@@ -77,13 +93,15 @@ public class PlayerController : MonoBehaviour
     private void Jump()
     {
         if (!isJumping && Input.GetKeyDown(KeyCode.Space)) //when the Spacebar is pressed and isJumping is false (first frame only)
-            //this disallows infinite jumping. you could alter the isJumping bool to and int to allow for differend amounts of jumping, i.e. Double Jumping!
+                                                           //this disallows infinite jumping. you could alter the isJumping bool to and int to allow for differend amounts of jumping, i.e. Double Jumping!
         {
             playerBody.AddForce(new Vector3(playerBody.velocity.x, jumpForce, 0)); //apply force in decided direction (y axis)
                                                                                    //Similar to launching our Pong Ball! We're just declaring the new Vector 3 in the same line.
                                                                                    //This Vector 3 keeps the same velocity.x (to keep moving in whatever x direction), but changes the y to jumpForce, and doesn't change the z at all. 
             isJumping = true; //set isJumping to true
-        } 
+
+            st = PlayerStates.Jumping;
+        }
     }
 
     //check collisions
@@ -99,7 +117,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Lava")
         {
             //Debug.Log("hit lava rock");
-        
+
             TakeDamage(2); //call TakeDamage(), reduce health by 2
         }
 
@@ -107,7 +125,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             //Debug.Log("hit Enemy");
-        
+
             TakeDamage(2); //call TakeDamage(), reduce health by 2
         }
     }
@@ -116,15 +134,15 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage; //reduce current health by damage amount
-        if (currentHealth <= 0) 
+        if (currentHealth <= 0)
         {
-            Destroy(gameObject); 
+            Destroy(gameObject);
         }
         //healthBarScript.SetHealth(currentHealth); // set the SetHealth(int) to the currentHealth value from this script
     }
 
 
-    void Flip (bool facingLeft)
+    void Flip(bool facingLeft)
     {
         //Debug.Log("Flip() called. facingRight = " + facingRight);
         if (facingLeft && !flippedLeft) //if player is facing Left but flipped Right (NOT flipped Left)...
@@ -140,8 +158,42 @@ public class PlayerController : MonoBehaviour
             flippedLeft = false; //flippedLeft = false
         }
     }
-       
 
+    public enum PlayerStates
+    {
+        None = 0,
+        Idle = 1,
+        Walking = 2,
+        Jumping = 3,
+        Stunned = 4
+    }
+
+    public void SetState(PlayerStates st)
+    {
+        if (State == rt) return; //return kills the function 
+        State = st;
+        if (State == PlayerStates.Idle)
+        {
+            SR.color = Color.white; 
+        }
+        if (State == PlayerStates.Walking)
+        {
+            SR.color = Color.blue;
+        }
+        if (State == PlayerStates.Jumping)
+        {
+            SR.color = Color.green;
+        }
+        
+
+    }
+
+    
+    
+        
+
+
+        
        
   
 }
